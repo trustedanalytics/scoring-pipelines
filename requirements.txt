@@ -1,0 +1,8 @@
+requests>=2.4.0
+ordereddict>=1.1
+numpy>=1.8.1
+Flask>=0.10.1
+Flask-API==0.6.4
+Flask-HTTPAuth==2.7.0
+python-dateutil==2.2
+kafka-python==1.0.2
