@@ -30,7 +30,6 @@ from collections import OrderedDict
 class Record(MutableRow):
 
     def add_columns(self, user_func, schema):
-        print("\n Add \n")
         result = user_func(self)
         self._data = self._data + result
         if len(schema) == len(result):
@@ -45,13 +44,11 @@ class Record(MutableRow):
 
 
     def filter(self, user_func):
-        print("\nfilter\n")
         return user_func(self)
 
 
 
     def drop_columns(self, col_list):
-        print("drop")
         indices = []
         try:
             for i in col_list:
@@ -69,32 +66,13 @@ class Record(MutableRow):
             message = "Failed to drop all columns %s" %e
             raise IOError(message)
 
-        # print("*****************************")
-        # print(self._schema_dict)
-        # print("*****************************")
-        # print(self._dtypes)
-        # print("*****************************")
-        # print(self._indices_dict)
-        # print("*****************************")
-        # print(self._dtype_constructors)
-        # print("*****************************")
-        # print("*".join(map(str, self._data)))
-        # print("*****************************")
-        # print("^^^%s" % len(self._schema_dict))
-        # print("^^^%s" % len(self._data))
-        # print("^^^%s" % len(self._dtype_constructors))
-        # print("^^^%s" % len(self._dtypes))
-        # print("^^^%s" % len(self._indices_dict))
-
     def score(self, uri):
-        print("score")
         s = "http://" + uri + "/v1/score?data=" + ','.join(str(d) for d in self._data )
         return (requests.post(s).text )
 
 
 
     def rename_columns(self, column_list):
-        print("rename")
         for old_key, new_key in column_list.iteritems():
             new_dict = OrderedDict([(new_key, v) if k == old_key else (k,v) for k,v in self._schema_dict.items()])
             self._schema_dict = new_dict

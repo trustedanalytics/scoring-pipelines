@@ -30,11 +30,9 @@ from werkzeug import secure_filename
 
 from threading import Thread
 
-UPLOAD_FOLDER = '/home/vcap/'
 ALLOWED_EXTENSIONS = set(['tar'])
 
 ScoringPipeline = Flask(__name__, static_url_path="")
-ScoringPipeline.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 authorize = HTTPBasicAuth()
 
 @ScoringPipeline.route('/v1/')
@@ -149,7 +147,6 @@ def _extract_and_install(tar_file):
         data = json.load(file)
         services = json.loads(os.getenv("VCAP_SERVICES"))
         kafka_URI = services["kafka"][0]["credentials"]["uri"]
-        print("******* %s" %kafka_URI)
         if(data["src_topic"]) != "":
             tasks.nodes.append(tasks.sourcetask(kafka_URI,  data["src_topic"]))
             source = True
