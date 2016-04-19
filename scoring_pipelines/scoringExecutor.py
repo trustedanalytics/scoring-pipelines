@@ -126,7 +126,7 @@ def _makesimpledag():
         return 'OK', status.HTTP_200_OK
 
 
-def _extract_and_install(tar_file):
+def _extract_and_install(tar_file, isTap):
     try:
         tar = tarfile.open(tar_file)
     except:
@@ -140,14 +140,16 @@ def _extract_and_install(tar_file):
     sink = False
     general_task = False
     tasks.nodes[:] = []
+    kafka_URI = ""
     for member in tar.getmembers():
         if os.path.splitext(member.name)[1] == ".json":
             jsonmembers.append(tar.extractfile(member))
-    for file in jsonmembers:
-        data = json.load(file)
+    if isTap:
         services = json.loads(os.getenv("VCAP_SERVICES"))
         kafka_URI = services["kafka"][0]["credentials"]["uri"]
-        if(data["src_topic"]) != "":
+    for file in jsonmembers:
+        data = json.load(file)        
+        if(data["src_topic"]) != "" and kafka_URI != "":
             tasks.nodes.append(tasks.sourcetask(kafka_URI,  data["src_topic"]))
             source = True
         if(data["file_name"]) != "":
@@ -155,12 +157,12 @@ def _extract_and_install(tar_file):
             #sys.stderr.write("input_schema=%s\n" % input_schema)
             tasks.nodes.append(tasks.generaltask(data["file_name"], data["func_name"], input_schema))
             general_task = True
-        if(data["sink_topic"]) != "":
+        if(data["sink_topic"]) != "" and kafka_URI != "":
             tasks.nodes.append(tasks.sinktask(kafka_URI, data["sink_topic"]))
             sink = True
 
         if not sink and not source:
-            sys.stderr.write("No sink and source nodes were provided. Assuming scoring will happen from REST endpoint.")
+            sys.stderr.write("Kafka mode was not configured. Assuming scoring will happen from REST endpoint.")
 
     if source and not sink:
         sys.stderr.write("No sink node was provided. Please provide a valid sink for output.")
@@ -176,10 +178,10 @@ def _extract_and_install(tar_file):
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:
-        _extract_and_install(sys.argv[1])
+        _extract_and_install(sys.argv[1], False)
         ScoringPipeline.run()
     elif len(sys.argv) == 3:
-        _extract_and_install(sys.argv[1])
+        _extract_and_install(sys.argv[1], False)
         port = int(sys.argv[2])
         ScoringPipeline.run(port=port)
     else:
