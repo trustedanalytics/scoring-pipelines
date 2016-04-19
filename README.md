@@ -27,6 +27,7 @@ In order to run the app on a different port (say 9100):
 The application is now running on port: 9100 
 
 You can now post requests to the scoring pipeline using curl command as follows:
+
     curl -H "Content-type: application/json" -X POST -d '{"message": "4/3/2016 10:32, P0001,1,0.0001,....., 192,-4.1158,192,3.8264"}' http://localhost:9100/v2/score
 
 
@@ -36,11 +37,16 @@ Create a Scoring Pipeline Instance from a broker in TAP
 In the TAP web site:
 
 1) Navigate to **Services -> Marketplace**.
+
 2) Select **scoring_pipeline** => **Create new isntance**.
+
 3) Fill in an instance name of your choice *(given below as **etlScoring**)*.
+
 4) You will be able to see your scoring pipeline under the Applications page and obtain its URL.
+
 5) Now call its REST endpoint to load the tar archive (advscore.tar) containing the **configuration file** (config.json) and the **python script** (test_script.py)to be executed.
     curl -i -X POST -F file=@advscore.tar  "http://etlScoring.demotrustedanalytics.com"
+
 6) The configuration file needs the following fields in there:
     "file_name" -- python script that needs to be executed on every streaming record
     "func_name" -- name of the function in the python script that needs to be invoked
@@ -159,8 +165,8 @@ def evaluate(record):
     	return r
 
 
-6) If the scoring pipeline was configured to work with Kafka messaging queues then start streaming records to the source-topic.
+7) If the scoring pipeline was configured to work with Kafka messaging queues then start streaming records to the source-topic.
 
-7) If the scoring pipeline was configured to use the REST endpoints, then you can post requests using curl command as follows:
+8) If the scoring pipeline was configured to use the REST endpoints, then you can post requests using curl command as follows:
     curl -H "Content-type: application/json" -X POST -d '{"message": "4/3/2016 10:32, P0001,1,0.0001,....., 192,-4.1158,192,3.8264"}' http://etlscoring.demotrustedanalytics.com/v2/score
 
