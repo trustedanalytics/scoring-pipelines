@@ -187,9 +187,7 @@ Scoring Pipeline Python Script Example
 
 
 
-
-What I would like to highlight here is that the script used to do transformations on streaming records in the Scoring Pipelines app can very easily be derived from the scripts used in model training using batch processing. Below is the 
-batch script that was used to generate the test_script used in the example above:
+**Note:** What I would like to highlight here is that the script used to do transformations on streaming records in the Scoring Pipelines app can very easily be derived from the scripts used in model training using batch processing. Below is the batch script that was used to generate the test_script used in the example above:
 
 .. code::    
 
@@ -259,5 +257,5 @@ batch script that was used to generate the test_script used in the example above
                 ["num_field_"+str(x) for x in range(3,137) if np.mod(x,2)==1],
                 mean_centered=True, k = 20)
 
-
+    # A lot of visualization and inspection operations after this point
 
