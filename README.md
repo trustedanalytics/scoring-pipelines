@@ -38,7 +38,7 @@ In the TAP web site:
 
 1) Navigate to **Services -> Marketplace**.
 
-2) Select **scoring_pipeline** => **Create new isntance**.
+2) Select **scoring_pipeline** => **Create new instance**.
 
 3) Fill in an instance name of your choice *(given below as **etlScoring**)*.
 
@@ -48,10 +48,15 @@ In the TAP web site:
     curl -i -X POST -F file=@advscore.tar  "http://etlScoring.demotrustedanalytics.com"
 
 6) The configuration file needs the following fields in there:
+
     "file_name" -- python script that needs to be executed on every streaming record <test_script.py>
+
     "func_name" -- name of the function in the python script that needs to be invoked <evaluate>
+
     "input_schema" -- schema of the incoming streaming record
+
     "src_topic" -- kafka topic from where to start consuming the records (in case of Kafka streaming) else this field should be empty <input>
+
     "sink_topic" -- kafka topic to which the app starts writing the predictions (in case of Kafka streaming) else this field should be empty <output>
 
     Note: For Kafka Streaming, both source and sink topics need to be specified
@@ -154,6 +159,7 @@ Scoring Pipeline Python Script Example
     y.extend(['Venus'])
     y.extend(['Mercury'])
 
+    # the entry point method that will be invoked by the scoring pipeline app on each streaming record
     def evaluate(record):
         record.add_columns(add_numeric_time, [('date', str), ('numeric_time', atk.float64)])
         record.add_columns(string_to_numeric(column_list), new_columns_schema)
@@ -162,6 +168,7 @@ Scoring Pipeline Python Script Example
         result = record.filter(drop_null(PCA_column_list))
         print("result is %s" %result)
         if not result:
+	    # send the record to be scored on the model that is already running on TAP
     	    r = record.score("formosascoringengine2.demotrustedanalytics.com")
     	    return r
 
