@@ -108,6 +108,7 @@ Below is a sample json to configure scoring pipeline in REST endpoint streaming 
 Scoring Pipeline Python Script Example
 --------------------------------------
 
+.. code ::
 
 from record import Record
 import atktypes as atk
