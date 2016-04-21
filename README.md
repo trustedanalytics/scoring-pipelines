@@ -110,9 +110,9 @@ Scoring Pipeline Python Script Example
 
 .. code ::
 
-from record import Record
-import atktypes as atk
-import numpy as np
+	from record import Record
+	import atktypes as atk
+	import numpy as np
 
 
 def add_numeric_time(row):
