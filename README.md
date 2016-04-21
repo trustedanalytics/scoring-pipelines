@@ -126,8 +126,8 @@ Scoring Pipeline Python Script Example
     import atktypes as atk
     import numpy as np
 
-
-    def add_numeric_time(row):
+    # the following 3 lambdas were taken as is from the batch processing script that was used to train in the model during development phase.
+    def **add_numeric_time(row)**:
         try:
             x = row['field_0'].split(" ")
             date = x[0]
@@ -138,7 +138,7 @@ Scoring Pipeline Python Script Example
     	except:
             return ["None", None]
 
-    def string_to_numeric(column_list):
+    def **string_to_numeric(column_list)**:
         def string_to_numeric2(row):
             result = []
             for column in column_list:
@@ -149,7 +149,7 @@ Scoring Pipeline Python Script Example
             return result
         return string_to_numeric2
 
-    def drop_null(column_list):
+    def **drop_null(column_list)**:
         def drop_null2(row):
             result = False
             for col in column_list:
@@ -188,104 +188,76 @@ Scoring Pipeline Python Script Example
 
 
 
+What I would like to highlight here is that the script used to do transformations on streaming records in the Scoring Pipelines app can very easily be derived from the scripts used in model training using batch processing. Below is the 
+batch script that was used to generate the test_script used in the example above:
 
+.. code::    
 
-import os
-import csv
-import json
-import numpy as np
-import socket,struct
-import time as time
-import itertools
+    import trustedanalytics as atk
 
+    atk.server.uri = 'atk-8706.demo-gotapaas.com'
+    atk.connect(r'/atk-8706.creds')
+    dataset = "hdfs://nameservice1/org/intel/hdfsbroker/userspace/689ffe9c-032d-4913-b6b7-d9af74f00ce6/47f53557-7b4e-4d1d-929b-7f4e634bf173/000000_1"
+    schema=[("field_"+str(x), str) for x in range(163)]
 
-import trustedanalytics as atk
+    data = atk.Frame(atk.CsvFile(dataset, schema,  skip_header_lines=1))
 
-print "ATK installation path = %s" % (atk.__path__)
+    def **add_numeric_time(row)**:
+        try:
+            x = row['field_0'].split(" ")
+            date = x[0]
+            time = x[1]
+            t = time.split(":")
+            numeric_time = float(t[0]) + float(t[1])/60.0+float(t[2])/3600.0
+            return [date, numeric_time]
+        except:
+            return ["None", None]
 
-atk.server.uri = 'atk-8706.demo-gotapaas.com'
-atk.connect(r'/atk-8706.creds')
+    data.add_columns(add_numeric_time, [('date', str), ('numeric_time', atk.float64)])
 
-hostname = os.environ['HOSTNAME']
+    #inspect the data
 
-dataset = "hdfs://nameservice1/org/intel/hdfsbroker/userspace/689ffe9c-032d-4913-b6b7-d9af74f00ce6/47f53557-7b4e-4d1d-929b-7f4e634bf173/000000_1"
-schema=[("field_"+str(x), str) for x in range(163)]
+    def **string_to_numeric(column_list)**:
+        def string_to_numeric2(row):
+            result = []
+            for column in column_list:
+                try:
+                    result.append(float(row[column]))
+                except:
+                    result.append(None)
+            return result
+        return string_to_numeric2
 
-data = atk.Frame(atk.CsvFile(dataset, schema,  skip_header_lines=1))
+    column_list = ['field_'+ str(x) for x in range(2,163)]
+    new_columns_schema = [('num_' + x, atk.float64) for x in column_list]
 
-def add_numeric_time(row):
-    try:
-        x = row['field_0'].split(" ")
-        date = x[0]
-        time = x[1]
-        t = time.split(":")
-        numeric_time = float(t[0]) + float(t[1])/60.0+float(t[2])/3600.0
-        return [date, numeric_time]
-    except:
-        return ["None", None]
+    data.add_columns(string_to_numeric(column_list), new_columns_schema)
+    #inspect the data
 
-data.add_columns(add_numeric_time, [('date', str), ('numeric_time', atk.float64)])
-
-data.inspect(wrap=10, width=100)
-
-def string_to_numeric(column_list):
-    def string_to_numeric2(row):
-        result = []
-        for column in column_list:
-            try:
-                result.append(float(row[column]))
-            except:
-                result.append(None)
+    def **drop_null(row)**:
+        result = False
+        for key, value in row:
+            result = True if value == None else result
         return result
-    return string_to_numeric2
 
-column_list = ['field_'+ str(x) for x in range(2,163)]
-new_columns_schema = [('num_' + x, atk.float64) for x in column_list]
+    # inspect the data
+    no_gt136 = data.copy()
+    x= ['field_'+str(i) for i in range(137, 163)]
+    x.extend(['num_field_'+str(j) for j in range(137, 163)])
+    no_gt136.drop_columns(x)
 
-data.add_columns(string_to_numeric(column_list), new_columns_schema)
-data.inspect(wrap=10, width=100)
+    #inspection and other counting and displaying operations
 
-def drop_null(row):
-    result = False
-    for key, value in row:
-        result = True if value == None else result
-    return result
+    no_gt136.drop_rows(drop_null)
+    #inspection and other counting and displaying operations
 
-no_gt136 = data.copy()
-x= ['field_'+str(i) for i in range(137, 163)]
-x.extend(['num_field_'+str(j) for j in range(137, 163)])
-no_gt136.drop_columns(x)
-no_gt136
-print no_gt136.inspect(wrap=10,width=100)
-print no_gt136.row_count
+    if drop_objects == True:
+        drop('pcaModel_' + reference)
 
-no_gt136.drop_rows(drop_null)
-print no_gt136.row_count
-print no_gt136.inspect(wrap=10,width=100)
-
-num_nulls = 53820 - 49234
-print num_nulls
-
-
-if drop_objects == True:
-    drop('pcaModel_' + reference)
-
-PCA_model = atk.PrincipalComponentsModel('pcaModel_' + reference)
-PCA_model.train(no_gt136,  
+    PCA_model = atk.PrincipalComponentsModel('pcaModel_' + reference)
+    PCA_model.train(no_gt136,  
                 ["num_field_"+str(x) for x in range(3,137) if np.mod(x,2)==1],
                 mean_centered=True, k = 20)
-
-scored_frame = PCA_model.predict(no_gt136, mean_centered=True, t_squared_index=True, 
-                                 observation_columns=["num_field_"+str(x) for x in range(3,137) if np.mod(x,2)==1], 
-                                 name ='scored_frame')
-
-scored_frame.inspect(wrap=10, width=100)
-
-cols = ['t_squared_index', 'field_1', 'numeric_time','date']
-
-
-df = pd.DataFrame(scored_frame.take(15000, columns=cols), 
-                  columns=cols)
 
 
 
