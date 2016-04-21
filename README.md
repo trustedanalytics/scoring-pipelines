@@ -2,11 +2,11 @@
 
 Scoring Pipeline
 ================
-Scoring Pipeline is a python app that can be used to perform ETL transformations followed by scoring on a deployed model, on a stream of records. The result is then either sent back to the client or is queued up on the kafka sink topic, depending upon the mode that the app was configured in at the time of initialization.
+Scoring Pipeline is a python app that can be used to perform ETL transformations followed by scoring on a deployed model, on a stream of records. The result is then either sent back to the client posting the request or queued up on the kafka sink topic, depending upon the mode that the app was configured in at the time of initialization.
 
-Scoring pipeline can be initialized in 2 modes: Kafka streaming mode or REST endpoint streaming mode
+Scoring pipeline can be initialized in 2 modes: Kafka streaming mode or REST endpoint streaming mode.
 
-This section covers how to run scoring pipeline locally and instantiating it in TAP.
+There are two ways to start Scoring Pipeline, locally and on TAP. This section covers how to run scoring pipeline locally and instantiate it in TAP.
 
 
 Running Scoring Pipeline locally
@@ -48,11 +48,11 @@ In the TAP web site:
     curl -i -X POST -F file=@advscore.tar  "http://etlScoring.demotrustedanalytics.com"
 
 6) The configuration file needs the following fields in there:
-    "file_name" -- python script that needs to be executed on every streaming record
-    "func_name" -- name of the function in the python script that needs to be invoked
+    "file_name" -- python script that needs to be executed on every streaming record <test_script.py>
+    "func_name" -- name of the function in the python script that needs to be invoked <evaluate>
     "input_schema" -- schema of the incoming streaming record
-    "src_topic" -- kafka topic from where to start consuming the records (in case of Kafka streaming) else this field should be empty
-    "sink_topic" -- kafka topic to which the app starts writing the predictions (in case of Kafka streaming) else this field should be empty
+    "src_topic" -- kafka topic from where to start consuming the records (in case of Kafka streaming) else this field should be empty <input>
+    "sink_topic" -- kafka topic to which the app starts writing the predictions (in case of Kafka streaming) else this field should be empty <output>
 
     Note: For Kafka Streaming, both source and sink topics need to be specified
 
@@ -110,21 +110,21 @@ Scoring Pipeline Python Script Example
 
 .. code ::
 
-	from record import Record
-	import atktypes as atk
-	import numpy as np
+    from record import Record
+    import atktypes as atk
+    import numpy as np
 
 
-	def add_numeric_time(row):
-    	    try:
-        	x = row['field_0'].split(" ")
-        	date = x[0]
-        	time = x[1]
-        	t = time.split(":")
-        	numeric_time = float(t[0]) + float(t[1])/60.0+float(t[2])/3600.0
-        	return [date, numeric_time]
-    	    except:
-        	return ["None", None]
+    def add_numeric_time(row):
+        try:
+            x = row['field_0'].split(" ")
+            date = x[0]
+            time = x[1]
+            t = time.split(":")
+            numeric_time = float(t[0]) + float(t[1])/60.0+float(t[2])/3600.0
+            return [date, numeric_time]
+    	except:
+            return ["None", None]
 
     def string_to_numeric(column_list):
         def string_to_numeric2(row):
