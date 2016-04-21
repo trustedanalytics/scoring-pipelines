@@ -115,55 +115,55 @@ Scoring Pipeline Python Script Example
 	import numpy as np
 
 
-def add_numeric_time(row):
-    try:
-        x = row['field_0'].split(" ")
-        date = x[0]
-        time = x[1]
-        t = time.split(":")
-        numeric_time = float(t[0]) + float(t[1])/60.0+float(t[2])/3600.0
-        return [date, numeric_time]
-    except:
-        return ["None", None]
+	def add_numeric_time(row):
+    	    try:
+        	x = row['field_0'].split(" ")
+        	date = x[0]
+        	time = x[1]
+        	t = time.split(":")
+        	numeric_time = float(t[0]) + float(t[1])/60.0+float(t[2])/3600.0
+        	return [date, numeric_time]
+    	    except:
+        	return ["None", None]
 
-def string_to_numeric(column_list):
-    def string_to_numeric2(row):
-        result = []
-        for column in column_list:
-            try:
-                result.append(float(row[column]))
-            except:
-                result.append(None)
-        return result
-    return string_to_numeric2
+    def string_to_numeric(column_list):
+        def string_to_numeric2(row):
+            result = []
+            for column in column_list:
+                try:
+                    result.append(float(row[column]))
+                except:
+                    result.append(None)
+            return result
+        return string_to_numeric2
 
-def drop_null(column_list):
-    def drop_null2(row):
-        result = False
-        for col in column_list:
-            result = True if row[col] == None else result
-        return result
-    return drop_null2
+    def drop_null(column_list):
+        def drop_null2(row):
+            result = False
+            for col in column_list:
+                result = True if row[col] == None else result
+            return result
+        return drop_null2
 
-column_list = ['field_'+ str(x) for x in range(19,136) if np.mod(x,4)==3]
-new_columns_schema = [('num_' + x, atk.float64) for x in column_list]
+    column_list = ['field_'+ str(x) for x in range(19,136) if np.mod(x,4)==3]
+    new_columns_schema = [('num_' + x, atk.float64) for x in column_list]
 
-PCA_column_list = ['num_field_'+ str(x) for x in range(19,136) if np.mod(x,4)==3]
+    PCA_column_list = ['num_field_'+ str(x) for x in range(19,136) if np.mod(x,4)==3]
 
-y= ['field_'+str(i) for i in range(0, 163)]
-y.extend(['Venus'])
-y.extend(['Mercury'])
+    y= ['field_'+str(i) for i in range(0, 163)]
+    y.extend(['Venus'])
+    y.extend(['Mercury'])
 
-def evaluate(record):
-    record.add_columns(add_numeric_time, [('date', str), ('numeric_time', atk.float64)])
-    record.add_columns(string_to_numeric(column_list), new_columns_schema)
-    record.rename_columns({'date':'Venus', 'numeric_time':'Mercury'})
-    record.drop_columns(y)
-    result = record.filter(drop_null(PCA_column_list))
-    print("result is %s" %result)
-    if not result:
-    	r = record.score("formosascoringengine2.demotrustedanalytics.com")
-    	return r
+    def evaluate(record):
+        record.add_columns(add_numeric_time, [('date', str), ('numeric_time', atk.float64)])
+        record.add_columns(string_to_numeric(column_list), new_columns_schema)
+        record.rename_columns({'date':'Venus', 'numeric_time':'Mercury'})
+        record.drop_columns(y)
+        result = record.filter(drop_null(PCA_column_list))
+        print("result is %s" %result)
+        if not result:
+    	    r = record.score("formosascoringengine2.demotrustedanalytics.com")
+    	    return r
 
 
 7) If the scoring pipeline was configured to work with Kafka messaging queues then start streaming records to the source-topic.
