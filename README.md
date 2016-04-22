@@ -54,7 +54,7 @@ In the TAP web site:
 
 6) The configuration file needs the following fields in there:
 
-    "file_name" -- python script that needs to be executed on every streaming record *b*test_script.py*/b*
+    "file_name" -- python script that needs to be executed on every streaming record **test_script.py**
 
     "func_name" -- name of the function in the python script that needs to be invoked **evaluate**
 
@@ -125,6 +125,8 @@ Scoring Pipeline Python Script Example
     import numpy as np
 
     # the following 3 lambdas/UDFs were taken as is from the batch processing script that was used to train in the model during development phase.
+
+    # take the first column from the input row and split it into date and time 
     def **add_numeric_time(row)**:
         try:
             x = row['field_0'].split(" ")
@@ -136,6 +138,7 @@ Scoring Pipeline Python Script Example
     	except:
             return ["None", None]
 
+    # takes a list of columns and for every input row those column values are converted to floats and a list of floats is returned
     def **string_to_numeric(column_list)**:
         def string_to_numeric2(row):
             result = []
@@ -147,6 +150,7 @@ Scoring Pipeline Python Script Example
             return result
         return string_to_numeric2
 
+    # takes a list of columns and for every input row those column values are evaluated. True is returned if any of those column values are None; false otherwise
     def **drop_null(column_list)**:
         def drop_null2(row):
             result = False
@@ -155,14 +159,18 @@ Scoring Pipeline Python Script Example
             return result
         return drop_null2
 
+    # preparing a column list for passing to string_to_numeric UDF
     column_list = ['field_'+ str(x) for x in range(19,136) if np.mod(x,4)==3]
-    new_columns_schema = [('num_' + x, atk.float64) for x in column_list]
+    # preparing a schema to go with the new columns that would be added  
+    new_columns_schema = [('num_' + x, atk.float64) for x in column_list]    
 
-    PCA_column_list = ['num_field_'+ str(x) for x in range(19,136) if np.mod(x,4)==3]
-
+    # preparing a list of columns that would be dropped from every input row
     y= ['field_'+str(i) for i in range(0, 163)]
     y.extend(['Venus'])
     y.extend(['Mercury'])
+
+    # Selecting final column list that would be checked for any null values
+    PCA_column_list = ['num_field_'+ str(x) for x in range(19,136) if np.mod(x,4)==3]
 
     # the entry point method that will be invoked by the scoring pipeline app on each streaming record. This would need to be referenced in the configuration file as shown above
     def evaluate(record):
