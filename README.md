@@ -1,7 +1,5 @@
 # scoring-pipeline Py App
 
-Scoring Pipeline
-================
 Scoring Pipeline is a python app that can be used to perform ETL transformations followed by scoring on a deployed model, on a stream of records. The result is then either sent back to the client posting the request or queued up on the kafka sink topic, depending upon the mode that the app was configured in at the time of initialization.
 
 The ETL transformations currently supported in Scoring Pipelines are:
@@ -56,7 +54,8 @@ In the TAP web site:
 
 6) The configuration file needs the following fields in there:
 
-    "file_name" -- python script that needs to be executed on every streaming record **test_script.py**
+    "file_name" -- python script that needs to be executed on every streaming record test_script.py
+										     --------------
 
     "func_name" -- name of the function in the python script that needs to be invoked **evaluate**
 
