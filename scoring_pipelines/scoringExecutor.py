@@ -75,7 +75,7 @@ def upload_file():
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(os.getcwd(), filename))
-                _extract_and_install(filename)
+                _extract_and_install(filename, True)
                 tasks.uploaded = True
                 return make_response("Uploaded file", 200)
     else:
