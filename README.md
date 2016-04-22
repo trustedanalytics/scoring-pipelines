@@ -45,7 +45,7 @@ In the TAP web site:
 
 2) Select **scoring_pipeline** => **Create new instance**.
 
-3) Fill in an instance name of your choice **given below as etlScoring** 
+3) Fill in an instance name of your choice ( **given below as etlScoring** )
 
 4) You will be able to see your scoring pipeline under the Applications page and obtain its URL.
 
