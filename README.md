@@ -138,7 +138,7 @@ Scoring Pipeline Python Script Example
     	except:
             return ["None", None]
 
-    # takes a list of columns and for every input row those column values are converted to floats and a list of floats is returned
+    # takes a list of columns and for every input row those column values(strings) are converted to floats and a list of floats is returned
     def **string_to_numeric(column_list)**:
         def string_to_numeric2(row):
             result = []
@@ -159,7 +159,7 @@ Scoring Pipeline Python Script Example
             return result
         return drop_null2
 
-    # preparing a column list for passing to string_to_numeric UDF
+    # preparing a column list for passing to 'string_to_numeric' UDF
     column_list = ['field_'+ str(x) for x in range(19,136) if np.mod(x,4)==3]
     # preparing a schema to go with the new columns that would be added  
     new_columns_schema = [('num_' + x, atk.float64) for x in column_list]    
@@ -196,6 +196,10 @@ Scoring Pipeline Python Script Example
 **Note: What I would like to highlight here is that the script used to do transformations on streaming records in the Scoring Pipelines app can very easily be derived from the script used in model training using batch processing. Below is the batch script that was used to generate the test_script used in the example above**
 
 .. code::    
+    
+    ...
+    . set up code
+    ..
 
     import trustedanalytics as atk
 
@@ -223,7 +227,6 @@ Scoring Pipeline Python Script Example
     . code to inspect the data
     ..
 
-
     def **string_to_numeric(column_list)**:
         def string_to_numeric2(row):
             result = []
@@ -233,9 +236,9 @@ Scoring Pipeline Python Script Example
                 except:
                     result.append(None)
             return result
-        return string_to_numeric2
+        return string_to_numeric2   
 
-    column_list = ['field_'+ str(x) for x in range(2,163)]
+    column_list = ['field_'+ str(x) for x in range(19,136) if np.mod(x,4)==3]
     new_columns_schema = [('num_' + x, atk.float64) for x in column_list]
 
     data.add_columns(string_to_numeric(column_list), new_columns_schema)
@@ -245,45 +248,37 @@ Scoring Pipeline Python Script Example
     ..
 
 
-    def **drop_null(row)**:
-        result = False
-        for key, value in row:
-            result = True if value == None else result
-        return result
+    def **drop_null(column_list)**:
+        def drop_null2(row):
+            result = False
+            for col in column_list:
+                result = True if row[col] == None else result
+            return result
+        return drop_null2
+
+    
+    PCA_column_list = ['num_field_'+ str(x) for x in range(19,136) if np.mod(x,4)==3]
+    data_no_null = data.copy()
+    data_no_null.drop_rows(drop_null(PCA_column_list))
+
+    ...
+    . code to inspect and do other counting and displaying operations on the data
+    ..
+
+
+    # train the model
+    PCA_output= PCA_model.train(mariposa_no_null,  
+                PCA_column_list,
+                mean_centered=True, k = 30)
 
    
-    ...
-    . code to inspect the data
-    ..
-
-
-    no_gt136 = data.copy()
-    x= ['field_'+str(i) for i in range(137, 163)]
-    x.extend(['num_field_'+str(j) for j in range(137, 163)])
-    no_gt136.drop_columns(x)
 
     ...
-    . code to inspect inspect and do other counting and displaying operations on the data
-    ..
-
-
-    no_gt136.drop_rows(drop_null)
-
-
-    ...
-    . code to inspect inspect and do other counting and displaying operations on the data
-    ..
-
-
-    if drop_objects == True:
-        drop('pcaModel_' + reference)
-
-    PCA_model = atk.PrincipalComponentsModel('pcaModel_' + reference)
-    PCA_model.train(no_gt136,  
-                ["num_field_"+str(x) for x in range(3,137) if np.mod(x,2)==1],
-                mean_centered=True, k = 20)
-
-    ...
-    . A lot of code for visualization and inspection of the data after this point
+    . code for running the data through the model for verification
+    . Download the data to Pandas for plotting
+    . Create scatter plot for viewing
+    . Examine Eigen Values
+    . Examine Score for normality
+    . Publish the model
     ..
 
