@@ -93,7 +93,7 @@ def score():
         if request.headers['Content-type'] == 'application/json':
             try:
                 if isinstance(tasks.dag[0], tasks.sourcetask):
-                    return "Scoring Pipeline is being executed via Kafka. Simultaneous execution of Scoring Pipeline via REST is not allowed"
+                    return "\nScoring Pipeline is being executed via Kafka. Simultaneous execution of Scoring Pipeline via REST is not allowed\n"
                 else:
                     return str(tasks.executedag(request.json["message"], 0, len(tasks.dag)))
             except Exception as e:
@@ -102,7 +102,7 @@ def score():
             return "415 Unsupported media type"
 
     else:
-        return "Pipeline has not been initialized. Please initialize Scoring Pipeline using the upload API with the tar containing the UDFs"
+        return "\nPipeline has not been initialized. Please initialize Scoring Pipeline using the upload API with the tar containing the UDFs\n"
 
 def _makesimpledag():
     import tasks
@@ -150,7 +150,7 @@ def _extract_and_install(tar_file, isTap, kafka_URI = None):
         kafka_URI = services["kafka"][0]["credentials"]["uri"]
     
     if len(jsonmembers) != 1:
-        sys.stderr.write("Need exactly one configuration file in the tar archive.")
+        sys.stderr.write("\nNeed exactly one configuration file in the tar archive.\n")
         sys.exit(1)
    
     for file in jsonmembers:
@@ -168,14 +168,14 @@ def _extract_and_install(tar_file, isTap, kafka_URI = None):
             sink = True
 
     if not sink and not source:
-        sys.stderr.write("Kafka mode was not configured. Scoring will happen from REST endpoint.")
+        sys.stderr.write("\nKafka mode was not configured. Scoring will happen from REST endpoint.\n")
 
     if source and not sink:
-        sys.stderr.write("No sink node was provided. Please provide a valid sink for output.")
+        sys.stderr.write("\nNo sink node was provided. Please provide a valid sink for output.\n")
         sys.exit(1)
 
     if not source and sink:
-        sys.stderr.write(" No source node was provided. Please provide a valid source for input")
+        sys.stderr.write("\nNo source node was provided. Please provide a valid source for input\n")
         sys.exit(1)
 
     if general_task:
@@ -199,7 +199,7 @@ if __name__ == '__main__':
             port = int(os.getenv("PORT"))
             ScoringPipeline.run(host="0.0.0.0", port=port)
     except:
-        sys.stderr.write("\n USAGE: ipython scoringExecutor.py <scoring.tar> <port number> <kafa uri> \n")
+        sys.stderr.write("\nUSAGE: ipython scoringExecutor.py <scoring.tar> <port number> <kafa uri> \n")
 
 
 
