@@ -56,15 +56,15 @@ In the TAP web site:
 
 6) The configuration file needs the following fields in there:
 
-    "file_name" -- python script that needs to be executed on every streaming record <test_script.py>
+    "file_name" -- python script that needs to be executed on every streaming record **test_script.py**
 
-    "func_name" -- name of the function in the python script that needs to be invoked <evaluate>
+    "func_name" -- name of the function in the python script that needs to be invoked **evaluate**
 
     "input_schema" -- schema of the incoming streaming record
 
-    "src_topic" -- kafka topic from where to start consuming the records (in case of Kafka streaming) else this field should be empty <input>
+    "src_topic" -- kafka topic from where to start consuming the records (in case of Kafka streaming) else this field should be empty **input**
 
-    "sink_topic" -- kafka topic to which the app starts writing the predictions (in case of Kafka streaming) else this field should be empty <output>
+    "sink_topic" -- kafka topic to which the app starts writing the predictions (in case of Kafka streaming) else this field should be empty **output**
 
     Note: For Kafka Streaming, both source and sink topics need to be specified
 
@@ -166,7 +166,7 @@ Scoring Pipeline Python Script Example
     y.extend(['Venus'])
     y.extend(['Mercury'])
 
-    # the entry point method that will be invoked by the scoring pipeline app on each streaming record
+    # the entry point method that will be invoked by the scoring pipeline app on each streaming record. This would need to be referenced in the configuration file as shown above
     def evaluate(record):
         record.add_columns(add_numeric_time, [('date', str), ('numeric_time', atk.float64)])
         record.add_columns(string_to_numeric(column_list), new_columns_schema)
@@ -213,7 +213,10 @@ Scoring Pipeline Python Script Example
 
     data.add_columns(add_numeric_time, [('date', str), ('numeric_time', atk.float64)])
 
-    #inspect the data
+    ...
+    . code to inspect the data
+    ..
+
 
     def **string_to_numeric(column_list)**:
         def string_to_numeric2(row):
@@ -230,7 +233,11 @@ Scoring Pipeline Python Script Example
     new_columns_schema = [('num_' + x, atk.float64) for x in column_list]
 
     data.add_columns(string_to_numeric(column_list), new_columns_schema)
-    #inspect the data
+    
+    ...
+    . code to inspect the data
+    ..
+
 
     def **drop_null(row)**:
         result = False
@@ -238,16 +245,29 @@ Scoring Pipeline Python Script Example
             result = True if value == None else result
         return result
 
-    # inspect the data
+   
+    ...
+    . code to inspect the data
+    ..
+
+
     no_gt136 = data.copy()
     x= ['field_'+str(i) for i in range(137, 163)]
     x.extend(['num_field_'+str(j) for j in range(137, 163)])
     no_gt136.drop_columns(x)
 
-    #inspection and other counting and displaying operations
+    ...
+    . code to inspect inspect and do other counting and displaying operations on the data
+    ..
+
 
     no_gt136.drop_rows(drop_null)
-    #inspection and other counting and displaying operations
+
+
+    ...
+    . code to inspect inspect and do other counting and displaying operations on the data
+    ..
+
 
     if drop_objects == True:
         drop('pcaModel_' + reference)
@@ -257,5 +277,7 @@ Scoring Pipeline Python Script Example
                 ["num_field_"+str(x) for x in range(3,137) if np.mod(x,2)==1],
                 mean_centered=True, k = 20)
 
-    # A lot of visualization and inspection operations after this point
+    ...
+    . A lot of code for visualization and inspection of the data after this point
+    ..
 
