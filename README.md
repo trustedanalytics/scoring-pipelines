@@ -45,7 +45,7 @@ In the TAP web site:
 
 2) Select **scoring_pipeline** => **Create new instance**.
 
-3) Fill in an instance name of your choice *(given below as **etlScoring** )*.
+3) Fill in an instance name of your choice **given below as etlScoring** 
 
 4) You will be able to see your scoring pipeline under the Applications page and obtain its URL.
 
@@ -54,7 +54,7 @@ In the TAP web site:
 
 6) The configuration file needs the following fields in there:
 
-    "file_name" -- python script that needs to be executed on every streaming record test_script.py
+    "file_name" -- python script that needs to be executed on every streaming record *b*test_script.py*/b*
 
     "func_name" -- name of the function in the python script that needs to be invoked **evaluate**
 
