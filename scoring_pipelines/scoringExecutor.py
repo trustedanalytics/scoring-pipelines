@@ -126,7 +126,7 @@ def _makesimpledag():
         return 'OK', status.HTTP_200_OK
 
 
-def _extract_and_install(tar_file, isTap):
+def _extract_and_install(tar_file, isTap, kafka_URI = None):
     try:
         tar = tarfile.open(tar_file)
     except:
@@ -140,16 +140,22 @@ def _extract_and_install(tar_file, isTap):
     sink = False
     general_task = False
     tasks.nodes[:] = []
-    kafka_URI = ""
+    
     for member in tar.getmembers():
         if os.path.splitext(member.name)[1] == ".json":
             jsonmembers.append(tar.extractfile(member))
+    
     if isTap:
         services = json.loads(os.getenv("VCAP_SERVICES"))
         kafka_URI = services["kafka"][0]["credentials"]["uri"]
+    
+    if len(jsonmembers) != 1:
+        sys.stderr.write("Need exactly one configuration file in the tar archive.")
+        sys.exit(1)
+   
     for file in jsonmembers:
         data = json.load(file)        
-        if(data["src_topic"]) != "" and kafka_URI != "":
+        if(data["src_topic"]) != "" and kafka_URI != None:
             tasks.nodes.append(tasks.sourcetask(kafka_URI,  data["src_topic"]))
             source = True
         if(data["file_name"]) != "":
@@ -157,12 +163,12 @@ def _extract_and_install(tar_file, isTap):
             #sys.stderr.write("input_schema=%s\n" % input_schema)
             tasks.nodes.append(tasks.generaltask(data["file_name"], data["func_name"], input_schema))
             general_task = True
-        if(data["sink_topic"]) != "" and kafka_URI != "":
+        if(data["sink_topic"]) != "" and kafka_URI != None:
             tasks.nodes.append(tasks.sinktask(kafka_URI, data["sink_topic"]))
             sink = True
 
-        if not sink and not source:
-            sys.stderr.write("Kafka mode was not configured. Assuming scoring will happen from REST endpoint.")
+    if not sink and not source:
+        sys.stderr.write("Kafka mode was not configured. Scoring will happen from REST endpoint.")
 
     if source and not sink:
         sys.stderr.write("No sink node was provided. Please provide a valid sink for output.")
@@ -177,16 +183,23 @@ def _extract_and_install(tar_file, isTap):
     tar.close()
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        _extract_and_install(sys.argv[1], False)
-        ScoringPipeline.run()
-    elif len(sys.argv) == 3:
-        _extract_and_install(sys.argv[1], False)
-        port = int(sys.argv[2])
-        ScoringPipeline.run(port=port)
-    else:
-        port = int(os.getenv("PORT"))
-        ScoringPipeline.run(host="0.0.0.0", port=port)
+    try:
+        if len(sys.argv) == 2:
+            _extract_and_install(sys.argv[1], False)
+            ScoringPipeline.run()
+        elif len(sys.argv) == 3:
+	    _extract_and_install(sys.argv[1], False)
+            port = int(sys.argv[2])
+            ScoringPipeline.run(port=port)
+        elif len(sys.argv) == 4:
+	    _extract_and_install(sys.argv[1], False, sys.argv[3])
+            port = int(sys.argv[2])
+            ScoringPipeline.run(port=port)
+        else:
+            port = int(os.getenv("PORT"))
+            ScoringPipeline.run(host="0.0.0.0", port=port)
+    except:
+        sys.stderr.write("\n USAGE: ipython scoringExecutor.py <scoring.tar> <port number> <kafa uri> \n")
 
 
 
