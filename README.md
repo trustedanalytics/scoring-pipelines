@@ -126,7 +126,7 @@ Scoring Pipeline Python Script Example
     import atktypes as atk
     import numpy as np
 
-    # the following 3 lambdas were taken as is from the batch processing script that was used to train in the model during development phase.
+    # the following 3 lambdas/UDFs were taken as is from the batch processing script that was used to train in the model during development phase.
     def **add_numeric_time(row)**:
         try:
             x = row['field_0'].split(" ")
@@ -187,7 +187,7 @@ Scoring Pipeline Python Script Example
 
 
 
-**Note:** What I would like to highlight here is that the script used to do transformations on streaming records in the Scoring Pipelines app can very easily be derived from the script used in model training using batch processing. Below is the batch script that was used to generate the test_script used in the example above:
+**Note: What I would like to highlight here is that the script used to do transformations on streaming records in the Scoring Pipelines app can very easily be derived from the script used in model training using batch processing. Below is the batch script that was used to generate the test_script used in the example above**
 
 .. code::    
 
