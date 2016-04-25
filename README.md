@@ -181,10 +181,11 @@ Scoring Pipeline Python Script Example
         result = record.filter(drop_null(PCA_column_list))
         print("result is %s" %result)
         if not result:
-	    # send the record to be scored on the model that is already running on TAP
+	    # send the record to be scored, to the model that is already running in Scoring Engine on TAP
     	    r = record.score("scoringengine2.demotrustedanalytics.com")
     	    return r
 
+NOTE: For more information on Scoring Engine, please refer (http://trustedanalytics.github.io/atk/versions/master/ad_scoring_engine.html)
 
 7) If the scoring pipeline was configured to work with Kafka messaging queues then start streaming records to the source-topic.
 
