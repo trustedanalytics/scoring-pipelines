@@ -21,11 +21,11 @@ Python-scoring-pipeline-executor
 """
 from flask import Flask, request, jsonify, make_response
 
-from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.api import status, exceptions
 import sys, os
 import tarfile
 import json
+import logging
 from werkzeug import secure_filename
 
 from threading import Thread
@@ -33,21 +33,10 @@ from threading import Thread
 ALLOWED_EXTENSIONS = set(['tar'])
 
 ScoringPipeline = Flask(__name__, static_url_path="")
-authorize = HTTPBasicAuth()
 
 @ScoringPipeline.route('/v1/')
 def welcome_page():
     return "Welcome to Scoring Pipeline Executor"
-
-@authorize.get_password
-def get_password(username):
-    if username == 'atkuser':
-        return True
-    return None
-
-@authorize.error_handler
-def authorization_reject():
-    return make_response(jsonify({'error': 'Bad credentials. Access Denied'}), 403)
 
 @ScoringPipeline.errorhandler(400)
 def bad_request(error):
