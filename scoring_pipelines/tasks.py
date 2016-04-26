@@ -1,7 +1,7 @@
 # vim: set encoding=utf-8
 
 #
-#  Copyright (c) 2015 Intel Corporation 
+#  Copyright (c) 2016 Intel Corporation 
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -46,10 +46,10 @@ class sourcetask(object):
         self.consumer = consumer
 
     def execute(self):
-        sys.stderr.write("Thread started")
+        sys.stdout.write("Thread started")
         for message in self.consumer:
             if message is not None:
-               # print("%s:%d:%d: key=%s value=%s" %(message.topic, message.partition, message.offset, message.key, message.value))
+                sys.stderr.write("Executing: %s:%d:%d: key=%s value=%s" %(message.topic, message.partition, message.offset, message.key, message.value))
                 result = executedag(message.value, 1, len(dag)-1)
                 #execute the last sink task on this message
                 if (result != None):
