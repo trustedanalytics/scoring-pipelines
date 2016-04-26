@@ -57,7 +57,7 @@ def allowed_file(filename):
 @ScoringPipeline.route("/", methods=['POST', 'PUT'])
 def upload_file():
     import tasks
-    logging.debug('Uploading File Request')
+    print('Uploading File Request')
     if tasks.uploaded == False:
         if request.method == 'POST':
             file = request.files['file']
@@ -68,8 +68,7 @@ def upload_file():
                 tasks.uploaded = True
                 return make_response("Uploaded file", 200)
     else:
-	logging.warn('Cannot upload another file as the Scoring Pipeline has already been initialized')
-        return make_response("Cannot upload another file as the Scoring Pipeline has already been initialized", 500)
+	return make_response("Cannot upload another file as the Scoring Pipeline has already been initialized", 500)
 
 
 @ScoringPipeline.route("/")
@@ -79,25 +78,21 @@ def hello():
 @ScoringPipeline.route('/v1/score', methods=['POST'])
 def score():
     import tasks
-    logging.debug('Score Request')
+    print('Score Request Received')
     if len(tasks.dag) != 0:
         if request.headers['Content-type'] == 'application/json':
             try:
                 if isinstance(tasks.dag[0], tasks.sourcetask):
-		    logging.warn('Scoring request received via REST endpoint, while Scoring Pipeline is being executed via kafka. Simultaneous execution in both modes is not allowed')
-                    return "\nScoring Pipeline is being executed via Kafka. Simultaneous execution of Scoring Pipeline via REST is not allowed\n"
+		    return "\nScoring request received via REST endpoint, while Scoring Pipeline is being executed via kafka. Simultaneous execution of Scoring Pipeline via REST is not allowed\n"
                 else:
                     return str(tasks.executedag(request.json["message"], 0, len(tasks.dag)))
-            except Exception as e:
-		logging.error('Error happened while trying to process the scoring request. ' + str(e))
+            except Exception as e:		
                 return make_response(str(e), 500)
         else:
-	    logging.error('unsupported media type')
-            return "415 Unsupported media type"
+	    return "415 Unsupported media type"
 
     else:
-	logging.warn('Pipeline has not been initialized. Please initialize Scoring Pipeline using the upload API with the tar containing the UDFs')
-        return "\nPipeline has not been initialized. Please initialize Scoring Pipeline using the upload API with the tar containing the UDFs\n"
+	return "\nPipeline has not been initialized. Please initialize Scoring Pipeline using the upload API with the tar containing the UDFs\n"
 
 def _makesimpledag():
     import tasks
@@ -111,7 +106,7 @@ def _makesimpledag():
             elif isinstance(node, tasks.sinktask):
                 tasks.dag[2] = node
             else:
-		logging.warn("Found an unexpected task {0} while executing single UDF scoring.\n".format(node))
+		print("Found an unexpected task {0} while executing single UDF scoring.\n".format(node))
     else:
         tasks.dag[0] = tasks.nodes[0]
 
