@@ -26,12 +26,16 @@ import time
 install_reqs = parse_requirements("requirements.txt", session=False)
 reqs = [str(ir.req) for ir in install_reqs]
 
+POST=os.getenv("POSTTAG","dev")
+BUILD=os.getenv("BUILDNUMBER", "0")
+
+VERSION="0.1"
+
 setup(
     # Application name:
     name="scoring_pipelines",
 
-    # Version number (initial):
-    version=u"1-1",
+    version="{0}-{1}{2}".format(VERSION, POST, BUILD),
 
     # Application author details:
     author="trustedanalytics",

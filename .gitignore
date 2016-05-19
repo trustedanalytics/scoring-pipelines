@@ -1,3 +1,4 @@
 build/
 dist/
 scoring_pipelines.egg-info/
+.idea
