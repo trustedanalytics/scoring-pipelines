@@ -2,3 +2,4 @@ include requirements.txt
 include README.md
 include manifest.yml.tpl
 include runtime.txt
+recursive-include vendor *
