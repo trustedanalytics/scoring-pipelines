@@ -29,7 +29,7 @@ reqs = [str(ir.req) for ir in install_reqs]
 POST=os.getenv("POSTTAG","dev")
 BUILD=os.getenv("BUILDNUMBER", "0")
 
-VERSION="0.7"
+VERSION=os.getenv("VERSION","0.7")
 
 setup(
     # Application name:
