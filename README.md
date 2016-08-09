@@ -33,7 +33,9 @@ The application is now running on port: 9100
 
 You can now post requests to the scoring pipeline using curl command as follows:
 
-    curl -H "Content-type: application/json" -X POST -d '{"message": "4/3/2016 10:32, P0001,1,0.0001,....., 192,-4.1158,192,3.8264"}' http://localhost:9100/v11111111111reate a Scoring Pipeline Instance from a broker in TAP
+    curl -H "Content-type: application/json" -X POST -d '{"message": "4/3/2016 10:32, P0001,1,0.0001,....., 192,-4.1158,192,3.8264"}' http://localhost:9100/v1/score 
+
+Create a Scoring Pipeline Instance from a broker in TAP
 -------------------------------------------------------
 
 In the TAP web site:
