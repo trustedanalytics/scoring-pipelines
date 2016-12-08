@@ -136,8 +136,7 @@ def _extract_and_install(tar_file, isTap, kafka_URI = None):
             jsonmembers.append(tar.extractfile(member))
     
     if isTap:
-        services = json.loads(os.getenv("VCAP_SERVICES"))
-        kafka_URI = services["kafka"][0]["credentials"]["uri"]
+        kafka_URI = os.getenv("KAFKA_URI")
     
     if len(jsonmembers) != 1:
         sys.stderr.write("\nNeed exactly one configuration file in the tar archive.\n")
