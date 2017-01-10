@@ -184,7 +184,7 @@ The JSON sample below configures the scoring pipeline for REST endpoint streamin
     	    r = record.score("scoringengine2.demotrustedanalytics.com")
     	    return r
 
-Note: For more information on Scoring Engine, visit: http://trustedanalytics.github.io/atk/versions/master/ad_scoring_engine.html
+>For more information on the Scoring Engine, visit: http://trustedanalytics.github.io/atk/versions/master/ad_scoring_engine.html
 
 7) If the Scoring Pipeline was configured to work with Kafka messaging queues, then start streaming records to the source-topic.
 
@@ -192,7 +192,7 @@ Note: For more information on Scoring Engine, visit: http://trustedanalytics.git
     curl -H "Content-type: application/json" -X POST -d '{"message": "4/3/2016 10:32, P0001,1,0.0001,....., 192,-4.1158,192,3.8264"}' http://etlscoring.demotrustedanalytics.com/v2/score
 
 
->Note that the script used to do transformations on streaming records in the Scoring Pipelines application can very easily be derived from the script used in model training using batch processing. The batch script below was used to generate the test_script used in the previous example.
+Note that the script used to do transformations on streaming records in the Scoring Pipelines application can very easily be derived from the script used in model training using batch processing. The batch script below was used to generate the test_script used in the previous example.
 
 .. code::    
     
