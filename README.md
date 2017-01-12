@@ -1,4 +1,4 @@
-# scoring-pipeline Py Application
+# scoring-pipeline
 
 The Scoring Pipeline is a Python application that can be used to perform ETL transformations followed by scoring on a deployed model (via the Scoring Engine), on a stream of records. The result is then either sent back to the client posting the request or queued up on the Kafka sink topic, depending upon the mode that the application was configured during initialization.
 
