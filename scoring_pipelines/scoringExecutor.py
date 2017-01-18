@@ -21,7 +21,7 @@ Python-scoring-pipeline-executor
 """
 from flask import Flask, request, jsonify, make_response
 
-from flask.ext.api import status, exceptions
+from flask_api import status, exceptions
 import sys, os
 import tarfile
 import json
@@ -86,7 +86,7 @@ def score():
 		    return "\nScoring request received via REST endpoint, while Scoring Pipeline is being executed via kafka. Simultaneous execution of Scoring Pipeline via REST is not allowed\n"
                 else:
                     return str(tasks.executedag(request.json["message"], 0, len(tasks.dag)))
-            except Exception as e:		
+            except Exception as e:
                 return make_response(str(e), 500)
         else:
 	    return "415 Unsupported media type"
@@ -130,20 +130,20 @@ def _extract_and_install(tar_file, isTap, kafka_URI = None):
     sink = False
     general_task = False
     tasks.nodes[:] = []
-    
+
     for member in tar.getmembers():
         if os.path.splitext(member.name)[1] == ".json":
             jsonmembers.append(tar.extractfile(member))
-    
+
     if isTap:
         kafka_URI = os.getenv("KAFKA_URI")
     
     if len(jsonmembers) != 1:
         sys.stderr.write("\nNeed exactly one configuration file in the tar archive.\n")
         sys.exit(1)
-   
+
     for file in jsonmembers:
-        data = json.load(file)        
+        data = json.load(file)
         if(data["src_topic"]) != "" and kafka_URI != None:
             tasks.nodes.append(tasks.sourcetask(kafka_URI,  data["src_topic"]))
             source = True
@@ -172,7 +172,7 @@ def _extract_and_install(tar_file, isTap, kafka_URI = None):
     tar.close()
 
 if __name__ == '__main__':
-    
+
     print('Starting Server for scoring pipeline')
     try:
         if len(sys.argv) == 2:
@@ -189,31 +189,7 @@ if __name__ == '__main__':
         else:
             port = int(os.getenv("PORT"))
             ScoringPipeline.run(host="0.0.0.0", port=port)
-    except:
-        sys.stderr.write("\nUSAGE: ipython scoringExecutor.py <scoring.tar> <port number> <kafa uri> \n")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    except Exception as e:
+        print e
+        sys.stderr.write("\nUSAGE: ipython scoringExecutor.py <scoring.tar> <port number> <kafka uri> \n")
 
