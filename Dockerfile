@@ -1,4 +1,4 @@
-FROM tapimages.us.enableiot.com:8080/tap-base-python:python2.7-jessie
+FROM tapimages:8080/tap-base-python:python2.7-jessie
 
 RUN mkdir -m 0775 -p /usr/src/app
 WORKDIR /usr/src/app
