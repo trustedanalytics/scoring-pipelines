@@ -1,57 +1,59 @@
-# scoring-pipeline Py App
+# scoring-pipeline
 
-Scoring Pipeline is a python app that can be used to perform ETL transformations followed by scoring on a deployed model, on a stream of records. The result is then either sent back to the client posting the request or queued up on the kafka sink topic, depending upon the mode that the app was configured in at the time of initialization.
+The Scoring Pipeline is a Python application that can be used to perform ETL transformations followed by scoring on a deployed model (via the Scoring Engine), on a stream of records. The result is then either sent back to the client posting the request or queued up on the Kafka sink topic, depending upon the mode that the application was configured during initialization.
 
-The ETL transformations currently supported in Scoring Pipelines are:
+The ETL transformations currently supported in Scoring Pipelines are:  
+
  - add_columns
  - drop_columns
  - rename_columns
  - filter
  - score
 
-Scoring pipeline can be initialized in 2 modes: Kafka streaming mode or REST endpoint streaming mode.
+The Scoring Pipeline can be initialized in 2 modes: Kafka streaming mode or REST endpoint streaming mode.
 
-There are two ways to start Scoring Pipeline, locally and on TAP. This section covers how to run scoring pipeline locally and instantiate it in TAP.
+There are two ways to start Scoring Pipeline, locally and on TAP. This section covers how to run the Scoring Pipeline locally and instantiate it in TAP.
 
+>If you don't need to perform transformations prior to scoring, you can use the [Scoring Engine](https://github.com/trustedanalytics/scoring-engine) instead of the Scoring Pipeline.  
 
-Running Scoring Pipeline locally
---------------------------------
+##Running Scoring Pipeline locally
 
-After cloning the repository, CD to CLONED_DIR/scoring-pipelines/scoring_pipelines.
+After cloning the repository, `cd` to `CLONED_DIR/scoring-pipelines/scoring_pipelines`.
 
-Copy the tar archive (advscore.tar) containing the **configuration file** (config.json) and the **python script** (test_script.py)to be executed into this dir. 
+Copy the tar archive (`advscore.tar`) containing the **configuration file** (`config.json`) and the **python script** (`test_script.py`) to be executed into this dir. 
 
-Run the app:
- $ ipython scoringExecutor.py advscore.tar
+Run the app:  
+    `$ ipython scoringExecutor.py advscore.tar`
 
 The application is now running on default debug port: 5000 
 
 In order to run the app on a different port (say 9100):
- $ ipython scoringExecutor.py advscore.tar 9100
+    `$ ipython scoringExecutor.py advscore.tar 9100`
 
 The application is now running on port: 9100 
 
-You can now post requests to the scoring pipeline using curl command as follows:
+You can now post requests to the scoring pipeline using curl commands as follows:
 
     curl -H "Content-type: application/json" -X POST -d '{"message": "4/3/2016 10:32, P0001,1,0.0001,....., 192,-4.1158,192,3.8264"}' http://localhost:9100/v1/score 
 
-Create a Scoring Pipeline Instance from a broker in TAP
--------------------------------------------------------
+##Create a Scoring Pipeline instance from a broker in TAP
 
-In the TAP web site:
+From the TAP Console:
 
-1) Navigate to **Services -> Marketplace**.
+1) Navigate to **Services > Marketplace**.
 
-2) Select **scoring_pipeline** => **Create new instance**.
+2) Search for (or scroll to) **TAP Scoring Pipeline** and select it.
 
-3) Fill in an instance name of your choice ( **given below as etlScoring** )
+3) Fill in an instance name of your choice (shown below as `etlScoring`) and click the **Create new instance** button.
 
-4) You will be able to see your scoring pipeline under the Applications page and obtain its URL.
+>This may take a minute or two to complete.
 
-5) Now call its REST endpoint to load the tar archive (advscore.tar) containing the **configuration file** (config.json) and the **python script** (test_script.py)to be executed.
+4) When done, you can see your scoring pipeline in the **Applications** page and obtain its URL.
+
+5) Now call the scoring pipeline's REST endpoint to load the tar archive (`advscore.tar`) containing the **configuration file** (`config.json`) and the **python script** (`test_script.py`) to be executed.
     curl -i -X POST -F file=@advscore.tar  "http://etlScoring.demotrustedanalytics.com"
 
-6) The configuration file needs the following fields in there:
+6) The configuration file needs the following fields included:
 
     "file_name" -- python script that needs to be executed on every streaming record **test_script.py**
 
@@ -65,10 +67,9 @@ In the TAP web site:
 
     Note: For Kafka Streaming, both source and sink topics need to be specified
 
-Scoring Pipeline Config file template
--------------------------------------
+##Scoring Pipeline config file template
 
-Below is a sample json to configure scoring pipeline in kafka streaming mode:
+The JSON sample below configures the scoring pipeline for Kafka streaming mode:
 
 .. code::
 
@@ -90,7 +91,7 @@ Below is a sample json to configure scoring pipeline in kafka streaming mode:
               }
             ]}, "src_topic":"input", "sink_topic":"output"}
 
-Below is a sample json to configure scoring pipeline in REST endpoint streaming mode:
+The JSON sample below configures the scoring pipeline for REST endpoint streaming mode:
 
 .. code::
 
@@ -114,8 +115,7 @@ Below is a sample json to configure scoring pipeline in REST endpoint streaming 
 
 
 
-Scoring Pipeline Python Script Example
---------------------------------------
+##Scoring Pipeline Python Script Example
 
 .. code ::
 
@@ -184,16 +184,15 @@ Scoring Pipeline Python Script Example
     	    r = record.score("scoringengine2.demotrustedanalytics.com")
     	    return r
 
-Note: For more information on Scoring Engine, please visit: http://trustedanalytics.github.io/atk/versions/master/ad_scoring_engine.html
+>For more information on the Scoring Engine, visit: http://trustedanalytics.github.io/atk/versions/master/ad_scoring_engine.html
 
-7) If the scoring pipeline was configured to work with Kafka messaging queues then start streaming records to the source-topic.
+7) If the Scoring Pipeline was configured to work with Kafka messaging queues, then start streaming records to the source-topic.
 
-8) If the scoring pipeline was configured to use the REST endpoints, then you can post requests using curl command as follows:
+8) If the Scoring Pipeline was configured to use the REST endpoints, then post requests using a curl command as follows:
     curl -H "Content-type: application/json" -X POST -d '{"message": "4/3/2016 10:32, P0001,1,0.0001,....., 192,-4.1158,192,3.8264"}' http://etlscoring.demotrustedanalytics.com/v2/score
 
 
-
-**Note: What I would like to highlight here is that the script used to do transformations on streaming records in the Scoring Pipelines app can very easily be derived from the script used in model training using batch processing. Below is the batch script that was used to generate the test_script used in the example above**
+Note that the script used to do transformations on streaming records in the Scoring Pipelines application can very easily be derived from the script used in model training using batch processing. The batch script below was used to generate the test_script used in the previous example.
 
 .. code::    
     
